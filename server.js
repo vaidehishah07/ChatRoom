@@ -16,25 +16,29 @@ app.use(express.static(path.join(__dirname, "public")));
 io.on("connection", (socket) => {
   //console.log("New web socket connection");
 
-  // Welcome current user
-  //socket.emit("message", "Welcome to the chatting application");
-  socket.emit(
-    "message",
-    formatMessage("botName", "Welcome to the chatting application")
-  );
+  socket.on("joinRoom", ({ username, room }) => {
+    // Welcome current user
+    //socket.emit("message", "Welcome to the chatting application");
+    socket.emit(
+      "message",
+      formatMessage(botName, "Welcome to the chatting application")
+    );
 
-  // Broadcast when a user connects
-  socket.broadcast.emit("message", "A user joined the chat");
-
-  // when a user disconnects
-  socket.on("disconnect", () => {
-    io.emit("message", "A user has left the chat");
+    // Broadcast when a user connects
+    socket.broadcast.emit(
+      formatMessage(botName, "message", "A user joined the chat")
+    );
   });
 
   // Listen for chat message
   socket.on("chatmessage", (msg) => {
     //console.log(msg);
-    io.emit("message", msg);
+    io.emit("message", formatMessage("USER", msg));
+  });
+
+  // when a user disconnects
+  socket.on("disconnect", () => {
+    io.emit(formatMessage(botName, "message", "A user has left the chat"));
   });
 });
 
